@@ -1,0 +1,44 @@
+﻿@model IEnumerable<FormDetail>;
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+
+<div class="modal-header"><h2>Templates</h2></div>
+
+<table>
+    <thead>
+        <tr>
+            <td>
+                Name
+            </td>
+            <td>
+                Description
+            </td>
+            <td>
+                Actions
+            </td>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var data in Model)
+        {
+            <tr>
+                <td>
+                    @data.Name
+                </td>
+                <td>
+                    @data.Description
+                </td>
+                <td>
+                    <a href="~/home/UseForm/@data.id" class="btn btn-primary" >Use Form</a>
+                    
+                    <a href="~/home/SubmitFormDetail/@data.id" class="btn btn-primary" >View Submit Detail</a>
+
+                </td>
+            </tr>
+        }
+    </tbody>
+
+</table>
+

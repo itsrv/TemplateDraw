@@ -1,0 +1,449 @@
+﻿@{
+    ViewData["Title"] = "Privacy Policy";
+}
+
+<div class="wrapper row">
+    <div class="col-md-2">
+        <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="InputText">
+            <span>Text Box</span>
+        </div>
+
+        <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="InputRadio">
+            <span> Radio </span>
+        </div>
+
+        <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="Clock">
+            <span> Clock </span>
+        </div>
+
+        <div>
+            <button class="btn btn-primary" id="SaveFormData">Save Form Data</button>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div id="drawflow" ondrop="dropElement(event)" ondragover="allowDrop(event)" style="overflow: auto;">
+
+        </div>
+    </div>
+    <div class="col-md-2" id="SideInput" style="display: none;">
+        <div class="form-group">
+            <label for="Height">Height in px</label>
+            <input type="text" class="form-control" id="Height" placeholder="">
+        </div>
+
+        <div class="form-group">
+            <label for="Width">Width in px</label>
+            <input type="text" class="form-control" id="Width" placeholder="">
+        </div>
+
+        <div class="form-group">
+            <label for="Width">Position X in px</label>
+            <input type="text" class="form-control" id="PositionX" placeholder="">
+        </div>
+
+        <div class="form-group">
+            <label for="Width">Position Y in px</label>
+            <input type="text" class="form-control" id="PositionY" placeholder="">
+        </div>
+
+        <div class="form-group">
+            <label for="Width">Input Label</label>
+            <input type="text" class="form-control" id="InputLabel" placeholder="">
+        </div>
+        <div class="form-group">
+            <label for="InputValue">Input Value</label>
+            <input type="text" class="form-control" id="InputValue" placeholder="Enter Text">
+        </div>
+        <div class="form-group">
+            <label for="RadioName">Group Name</label>
+            <input type="text" class="form-control" id="RadioName" placeholder="Enter Radio Group Name">
+        </div>
+
+        <div>
+            <button class="btn btn-primary" id="AddElm">Add</button>
+        </div>
+
+    </div>
+
+</div>
+
+
+<div id="FromDetails" class="modal fade" role="dialog" style="z-index: 1050 !important">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"></h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="FormName">Form Name</label>
+                    <input type="text" class="form-control" id="FormName" placeholder="Enter Text">
+                </div>
+                <div class="form-group">
+                    <label for="FormDescrition">Description</label>
+                    <input type="text" class="form-control" id="FormDescrition" placeholder="Enter Text">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="FormDetailSave" type="button" class="btn btn-default">Save</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<input type="hidden" id="CurrentSelect" value="" />
+<script>
+
+    var MyData = [];
+
+    var DisplayOrder = 0;
+
+    function allowDrop(ev) {
+        ev.preventDefault();
+    }
+
+    function drag(ev) {
+        ev.dataTransfer.setData("node", ev.target.getAttribute('data-node'));
+    }
+
+    function dropElement(ev) {
+        ev.preventDefault();
+        const data = ev.dataTransfer.getData("node");
+        $("#SideInput").show();
+        switch (data) {
+            case "InputText":
+                $("#CurrentSelect").val("InputText");
+                break;
+            case "InputRadio":
+                $("#CurrentSelect").val("InputRadio");
+                break;
+            case "Clock":
+                $("#CurrentSelect").val("Clock");
+                break;
+        }
+
+        return false;
+    }
+
+    function createGuid() {
+        function S4() {
+            return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+        }
+
+        return (S4() + S4() + "-" + S4() + "-4" + S4().substr(0, 3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
+    }
+
+
+    function TextSave() {
+        const guid = createGuid();
+        const InputLabel = $("#InputLabel").val();
+
+        if (InputLabel == undefined || InputLabel == null || InputLabel == "") {
+            alert("Plase Enter Input Label");
+            return false;
+        }
+
+        const MarkUp = `
+                     <div class="form-group">
+                        <label for="${guid}">${InputLabel}</label>
+                        <input type="text" class="form-control" id="${guid}" placeholder="Enter Text">
+                     </div>`;
+
+
+        const data = {
+            guid: guid,
+            Type: "InputText",
+            DisplayOrder: DisplayOrder + 1,
+            InputLabel: InputLabel
+        };
+
+        MyData.push(data);
+        SetFormData();
+
+        $("#drawflow").append(MarkUp);
+        return true;
+    }
+
+    function RadioSave() {
+        const InputVal = $("#InputValue").val();
+        const InputLabel = $("#InputLabel").val();
+        const InputName = $("#RadioName").val();
+
+        if (InputVal == undefined || InputVal == null || InputVal == "") {
+            alert("Plase Enter Input Value");
+            return false;
+        }
+
+        if (InputLabel == undefined || InputLabel == null || InputLabel == "") {
+            alert("Plase Enter Input Label");
+            return false;
+        }
+
+        if (InputName == undefined || InputName == null || InputName == "") {
+            alert("Plase Enter Radio Group Name");
+            return false;
+        }
+
+        const MarkUp = `
+                     <div class="form-check">
+                      <input class="form-check-input" type="radio" name="${InputName}" id="${InputVal}" value="option1" checked>
+                      <label class="form-check-label" for="${InputVal}">
+                        ${InputLabel}
+                      </label>
+                    </div>`;
+
+        const data = {
+            guid: createGuid(),
+            value: InputVal,
+            Type: "InputRadio",
+            DisplayOrder: DisplayOrder + 1,
+            InputLabel: InputLabel,
+            InputName: InputName
+        };
+
+        MyData.push(data);
+
+        SetFormData();
+
+        $("#drawflow").append(MarkUp);
+        return true;
+    }
+
+    function ClockSave() {
+        let height = $("#Height").val();
+        let width = $("#Width").val();
+        let positionX = $("#PositionX").val();
+        let positionY = $("#PositionY").val();
+        const inputVal = $("#InputValue").val();
+        const inputLabel = $("#InputLabel").val();
+        const inputName = $("#RadioName").val();
+
+        if (width == null || width === "" || width === 0) {
+            width = 200;
+        }
+
+        if (height == null || height === "" || height === 0) {
+            height = 200;
+        }
+
+        if (positionX == null || positionX === "" || positionX === 0) {
+            positionX = 0;
+        }
+
+        if (positionY == null || positionY === "" || positionY === 0) {
+            positionY = 0;
+        }
+
+        var guid = createGuid();
+        const MarkUp = `
+            <div style="position: relative;top: ${positionY}px;left: ${positionX}px;">
+                <canvas id="${guid}" width="${width}" height="${height}" style="background-color:#333">
+            </div>`;
+
+        $("#drawflow").append(MarkUp);
+
+        setTimeout(function () {
+            const canvas = document.getElementById(guid);
+            var ctx = canvas.getContext("2d");
+            var radius = canvas.height / 2;
+            ctx.translate(radius, radius);
+            radius = radius * 0.90;
+            
+            setInterval(function () { drawClock(ctx, radius); }, 1000);
+        }, 1000);
+
+        const data = {
+            guid: createGuid(),
+            value: inputVal,
+            Type: "Clock",
+            DisplayOrder: DisplayOrder + 1,
+            InputLabel: inputLabel,
+            InputName: inputName,
+            Height: height,
+            Width: width,
+            PositionX: positionX,
+            PositionY: PositionY
+        };
+
+        MyData.push(data);
+
+        SetFormData();
+
+        return true;
+    }
+
+
+    function SetFormData() {
+        window.localStorage.setItem("FromData", JSON.stringify(MyData));
+    }
+
+    function GetFormData() {
+        MyData = JSON.parse(window.localStorage.getItem("FromData"));
+    }
+
+    $("#SaveFormData").on("click",
+        function (e) {
+
+            GetFormData();
+
+            if (MyData == undefined || MyData == null) {
+                alert("Please Add a Form Elemet to the canvas.");
+                return false;
+            }
+
+            $("#FromDetails").modal('show');
+
+            e.preventDefault();
+        });
+
+    $("#FormDetailSave").on('click', function () {
+
+        const Name = $("#FormName").val();
+        const Desc = $("#FormDescrition").val();
+
+        const url = location.origin + "/Home/SaveFormData";
+
+        const formDetail = {
+            Name: Name,
+            Description: Desc,
+            FormData: MyData
+        };
+
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: JSON.stringify(formDetail),
+            contentType: "application/json; charset=utf-8",
+            dataType: "html",
+            success: function (response) {
+
+                if (response !== "200") {
+                    alert("Some Error occur.");
+                    $("#FromDetails").modal('hide');
+                }
+                else {
+                    alert("Success");
+                    $("#FromDetails").modal('hide');
+
+
+                    window.location.reload();
+                }
+
+                return false;
+            },
+            failure: function () {
+
+            },
+            error: function () {
+
+            }
+        });
+    });
+
+    $("#AddElm").on("click", function () {
+
+        const data = $("#CurrentSelect").val();
+        var check = true;
+        switch (data) {
+            case "InputText":
+                check = TextSave();
+                break;
+            case "InputRadio":
+                check = RadioSave();
+                break;
+            case "Clock":
+                check = ClockSave();
+                break;
+        }
+
+        if (!check) return false;
+
+        $("#SideInput").hide();
+        return false;
+    });
+
+    //var ctx = canvas.getContext("2d");
+    //var radius = canvas.height / 2;
+    //ctx.translate(radius, radius);
+    //radius = radius * 0.90
+    //setInterval(drawClock, 1000);
+
+    function drawClock(ctx,radius) {
+        drawFace(ctx, radius);
+        drawNumbers(ctx, radius);
+        drawTime(ctx, radius);
+    }
+
+    function drawFace(ctx, radius) {
+        var grad;
+        ctx.beginPath();
+        ctx.arc(0, 0, radius, 0, 2 * Math.PI);
+        ctx.fillStyle = 'white';
+        ctx.fill();
+        grad = ctx.createRadialGradient(0, 0, radius * 0.95, 0, 0, radius * 1.05);
+        grad.addColorStop(0, '#333');
+        grad.addColorStop(0.5, 'white');
+        grad.addColorStop(1, '#333');
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = radius * 0.1;
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(0, 0, radius * 0.1, 0, 2 * Math.PI);
+        ctx.fillStyle = '#333';
+        ctx.fill();
+    }
+
+    function drawNumbers(ctx, radius) {
+        var ang;
+        var num;
+        ctx.font = radius * 0.15 + "px arial";
+        ctx.textBaseline = "middle";
+        ctx.textAlign = "center";
+        for (num = 1; num < 13; num++) {
+            ang = num * Math.PI / 6;
+            ctx.rotate(ang);
+            ctx.translate(0, -radius * 0.85);
+            ctx.rotate(-ang);
+            ctx.fillText(num.toString(), 0, 0);
+            ctx.rotate(ang);
+            ctx.translate(0, radius * 0.85);
+            ctx.rotate(-ang);
+        }
+    }
+
+    function drawTime(ctx, radius) {
+        var now = new Date();
+        var hour = now.getHours();
+        var minute = now.getMinutes();
+        var second = now.getSeconds();
+        //hour
+        hour = hour % 12;
+        hour = (hour * Math.PI / 6) +
+            (minute * Math.PI / (6 * 60)) +
+            (second * Math.PI / (360 * 60));
+        drawHand(ctx, hour, radius * 0.5, radius * 0.07);
+        //minute
+        minute = (minute * Math.PI / 30) + (second * Math.PI / (30 * 60));
+        drawHand(ctx, minute, radius * 0.8, radius * 0.07);
+        // second
+        second = (second * Math.PI / 30);
+        drawHand(ctx, second, radius * 0.9, radius * 0.02);
+    }
+
+    function drawHand(ctx, pos, length, width) {
+        ctx.beginPath();
+        ctx.lineWidth = width;
+        ctx.lineCap = "round";
+        ctx.moveTo(0, 0);
+        ctx.rotate(pos);
+        ctx.lineTo(0, -length);
+        ctx.stroke();
+        ctx.rotate(-pos);
+    }
+
+
+</script>

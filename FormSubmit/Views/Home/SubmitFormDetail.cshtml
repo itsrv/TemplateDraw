@@ -1,0 +1,36 @@
+﻿@model List<List<vwSubmitFormDetail>>;
+
+
+@{
+    ViewData["Title"] = "SubmitFormDetail";
+}
+
+<h1>SubmitFormDetail</h1>
+
+@foreach (var data in Model)
+{
+    <br/>
+    <table>
+        <tbody>
+
+            @foreach (var submit in data)
+            {
+                <tr>
+                    <td>
+                        <div class="row">
+                            <div class="col-4">
+                                @submit.Label
+                            </div>
+                            <div class="col-8">
+                                @submit.Value
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+
+    </table>
+}
+
