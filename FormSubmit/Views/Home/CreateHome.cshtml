@@ -2,8 +2,68 @@
     ViewData["Title"] = "Privacy Policy";
 }
 
+<style>
+    .layout {
+        border: aquamarine 1px solid;
+        min-height: 50px;
+        z-index: 999;
+    }
+
+        .layout:hover {
+            border: black 1px solid;
+        }
+
+    .layout2 {
+        border: aquamarine 1px solid;
+        min-height: 50px;
+        z-index: 999;
+    }
+
+        .layout2:hover {
+            border: black 1px solid;
+        }
+
+    .layout3 {
+        border: aquamarine 1px solid;
+        min-height: 50px;
+        z-index: 999;
+    }
+
+        .layout3:hover {
+            border: black 1px solid;
+        }
+
+    .T_form-group:hover, .T_form-check:hover {
+        border: black 1px solid;
+    }
+
+</style>
+
+
+
 <div class="wrapper row">
     <div class="col-md-2">
+        <div class="card-header">
+            Layout
+        </div>
+
+        <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="Layout1">
+            <span>One Column Layout</span>
+        </div>
+
+        <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="Layout2">
+            <span>Two Column Layout</span>
+        </div>
+
+        <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="Layout3">
+            <span>Three Column Layout</span>
+        </div>
+
+
+        <div class="card-header">
+            Widgets
+        </div>
+
         <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="InputText">
             <span>Text Box</span>
         </div>
@@ -12,9 +72,9 @@
             <span> Radio </span>
         </div>
 
-        <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="Clock">
-            <span> Clock </span>
-        </div>
+        @*<div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="Clock">
+                <span> Clock </span>
+            </div>*@
 
         <div>
             <button class="btn btn-primary" id="SaveFormData">Save Form Data</button>
@@ -22,46 +82,46 @@
     </div>
 
     <div class="col-md-8">
-        <div id="drawflow" ondrop="dropElement(event)" ondragover="allowDrop(event)" style="overflow: auto;">
+        <div id="drawflow" ondrop="onNormalDrop(event)" ondragover="allowDrop(event)" style="overflow: auto;">
 
         </div>
     </div>
     <div class="col-md-2" id="SideInput" style="display: none;">
-        <div class="form-group">
+        <div class="form-group JS_Height" style="display: block;">
             <label for="Height">Height in px</label>
             <input type="text" class="form-control" id="Height" placeholder="">
         </div>
 
-        <div class="form-group">
+        <div class="form-group JS_Width" style="display: block;">
             <label for="Width">Width in px</label>
             <input type="text" class="form-control" id="Width" placeholder="">
         </div>
 
-        <div class="form-group">
+        <div class="form-group JS_PositionX" style="display: block;">
             <label for="Width">Position X in px</label>
             <input type="text" class="form-control" id="PositionX" placeholder="">
         </div>
 
-        <div class="form-group">
+        <div class="form-group JS_PositionY" style="display: block;">
             <label for="Width">Position Y in px</label>
             <input type="text" class="form-control" id="PositionY" placeholder="">
         </div>
 
-        <div class="form-group">
+        <div class="form-group JS_InputLabel">
             <label for="Width">Input Label</label>
             <input type="text" class="form-control" id="InputLabel" placeholder="">
         </div>
-        <div class="form-group">
+        <div class="form-group JS_InputValue">
             <label for="InputValue">Input Value</label>
             <input type="text" class="form-control" id="InputValue" placeholder="Enter Text">
         </div>
-        <div class="form-group">
+        <div class="form-group JS_RadioName">
             <label for="RadioName">Group Name</label>
             <input type="text" class="form-control" id="RadioName" placeholder="Enter Radio Group Name">
         </div>
 
         <div>
-            <button class="btn btn-primary" id="AddElm">Add</button>
+            <button class="btn btn-primary" id="UpdateWidget">Update Widget</button>
         </div>
 
     </div>
@@ -102,33 +162,92 @@
 
     var DisplayOrder = 0;
 
+    var SelectedInput = null;
+
+    var LayoutDrop = {
+        Id : "",
+        isLayoutDrop: false,
+        LayoutType: 0
+    }; 
+
+
+
+
+    // For allowing drop
     function allowDrop(ev) {
         ev.preventDefault();
     }
 
+    //When Elm DragStart
     function drag(ev) {
         ev.dataTransfer.setData("node", ev.target.getAttribute('data-node'));
     }
 
-    function dropElement(ev) {
+    //When Elm is droped
+    function onNormalDrop(ev) {
         ev.preventDefault();
         const data = ev.dataTransfer.getData("node");
-        $("#SideInput").show();
+        LayoutDrop.isLayoutDrop = false;
+        dropElement(data);
+        return false;
+    }
+
+    function onLayoutDrop(ev)
+    {
+        ev.preventDefault();
+        ev.stopPropagation();
+
+        var elm = $(ev.target);
+        var id = elm.attr("data-dropId");
+        var layoutType = elm.attr("data-LayoutType");
+
+        const data = ev.dataTransfer.getData("node");
+
+        LayoutDrop.isLayoutDrop = true;
+        LayoutDrop.Id = id;
+        LayoutDrop.LayoutType = layoutType;
+
+        dropElement(data);
+        return false;
+    }
+
+    function dropElement(data) {
+
         switch (data) {
-            case "InputText":
-                $("#CurrentSelect").val("InputText");
-                break;
-            case "InputRadio":
-                $("#CurrentSelect").val("InputRadio");
-                break;
-            case "Clock":
-                $("#CurrentSelect").val("Clock");
-                break;
+        case "InputText":
+            $("#CurrentSelect").val("InputText");
+            $("#SideInput").hide();
+            TextSave();
+            break;
+        case "InputRadio":
+            $("#CurrentSelect").val("InputRadio");
+            RadioSave();
+            $("#SideInput").hide();
+            break;
+        case "Clock":
+            $("#CurrentSelect").val("Clock");
+            ClockSave();
+            $("#SideInput").hide();
+            break;
+        case "Layout1":
+            LayoutSave("Layout1");
+            $("#SideInput").hide();
+            break;
+        case "Layout2":
+            LayoutSave("Layout2");
+            $("#SideInput").hide();
+            break;
+        case "Layout3":
+            LayoutSave("Layout3");
+            $("#SideInput").hide();
+            break;
         }
 
         return false;
     }
 
+
+    //For Creating a random guid id
     function createGuid() {
         function S4() {
             return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
@@ -137,79 +256,115 @@
         return (S4() + S4() + "-" + S4() + "-4" + S4().substr(0, 3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
     }
 
+    // Region For Different Template Add to View Port
 
-    function TextSave() {
-        const guid = createGuid();
-        const InputLabel = $("#InputLabel").val();
+    function TextSave(label = "Label for text box", elmId = null) {
+        let guid = createGuid();
 
-        if (InputLabel == undefined || InputLabel == null || InputLabel == "") {
-            alert("Plase Enter Input Label");
-            return false;
-        }
+        const InputLabel = label;
 
         const MarkUp = `
-                     <div class="form-group">
-                        <label for="${guid}">${InputLabel}</label>
-                        <input type="text" class="form-control" id="${guid}" placeholder="Enter Text">
+                     <div class="form-group T_form-group JS_FormWidget" data-widgetId="${elmId == null ? guid : elmId}" >
+                        <label class="Js_Lbl" for="${elmId == null ? guid : elmId}">${InputLabel}</label>
+                        <input type="text" class="form-control" id="${elmId == null ? guid : elmId}" placeholder="Enter Text">
                      </div>`;
 
+        if (elmId == null) {
+            const data = {
+                guid: guid,
+                Type: "InputText",
+                DisplayOrder: DisplayOrder + 1,
+                InputLabel: InputLabel
+            };
 
-        const data = {
-            guid: guid,
-            Type: "InputText",
-            DisplayOrder: DisplayOrder + 1,
-            InputLabel: InputLabel
-        };
+            MyData.push(data);
+            SetFormData();
 
-        MyData.push(data);
-        SetFormData();
+            if (LayoutDrop.isLayoutDrop) {
+                $(`#${LayoutDrop.Id}`).append(MarkUp);
+            }
+            else {
+                $("#drawflow").append(MarkUp);
+            }
+        }
+        else {
 
-        $("#drawflow").append(MarkUp);
+            const data = {
+                guid: elmId,
+                Type: "InputText",
+                DisplayOrder: DisplayOrder + 1,
+                InputLabel: InputLabel
+            };
+
+            GetFormData();
+
+            MyData = MyData.filter(x => x.guid != elmId);
+
+            MyData.push(data);
+            SetFormData();
+
+            $(`#${elmId}`).siblings(".Js_Lbl").html(label);
+        }
+
         return true;
     }
 
-    function RadioSave() {
-        const InputVal = $("#InputValue").val();
-        const InputLabel = $("#InputLabel").val();
-        const InputName = $("#RadioName").val();
+    function RadioSave(label = "Radio Label",value="0",group="",elmId= null) {
 
-        if (InputVal == undefined || InputVal == null || InputVal == "") {
-            alert("Plase Enter Input Value");
-            return false;
-        }
-
-        if (InputLabel == undefined || InputLabel == null || InputLabel == "") {
-            alert("Plase Enter Input Label");
-            return false;
-        }
-
-        if (InputName == undefined || InputName == null || InputName == "") {
-            alert("Plase Enter Radio Group Name");
-            return false;
-        }
+        const guid = createGuid();
 
         const MarkUp = `
-                     <div class="form-check">
-                      <input class="form-check-input" type="radio" name="${InputName}" id="${InputVal}" value="option1" checked>
-                      <label class="form-check-label" for="${InputVal}">
-                        ${InputLabel}
+                     <div class="form-check T_form-check JS_FormWidget" data-widgetId="${elmId == null ? guid : elmId}">
+                      <input class="form-check-input" type="radio" name="${group}" id="${elmId == null ? guid : elmId}" value="${value}" checked>
+                      <label class="form-check-label Js_Lbl" for="${value}">
+                        ${label}
                       </label>
                     </div>`;
 
-        const data = {
-            guid: createGuid(),
-            value: InputVal,
-            Type: "InputRadio",
-            DisplayOrder: DisplayOrder + 1,
-            InputLabel: InputLabel,
-            InputName: InputName
-        };
+        if (elmId == null) {
+            const data = {
+                guid: guid,
+                value: value,
+                Type: "InputRadio",
+                DisplayOrder: DisplayOrder + 1,
+                InputLabel: label,
+                InputName: group
+            };
 
-        MyData.push(data);
+            MyData.push(data);
 
-        SetFormData();
+            SetFormData();
 
-        $("#drawflow").append(MarkUp);
+            if (LayoutDrop.isLayoutDrop) {
+                $(`#${LayoutDrop.Id}`).append(MarkUp);
+            }
+            else {
+                $("#drawflow").append(MarkUp);
+            }
+        }
+        else {
+            
+            const data = {
+                guid: elmId,
+                value: value,
+                Type: "InputRadio",
+                DisplayOrder: DisplayOrder + 1,
+                InputLabel: label,
+                InputName: group
+            };
+
+            GetFormData();
+
+            MyData = MyData.filter(x => x.guid != elmId);
+
+            MyData.push(data);
+            SetFormData();
+
+            $(`#${elmId}`).siblings(".Js_Lbl").html(label);
+            $(`#${elmId}`).attr('name', group);
+            $(`#${elmId}`).val(value);
+        }
+
         return true;
     }
 
@@ -252,7 +407,7 @@
             var radius = canvas.height / 2;
             ctx.translate(radius, radius);
             radius = radius * 0.90;
-            
+
             setInterval(function () { drawClock(ctx, radius); }, 1000);
         }, 1000);
 
@@ -276,30 +431,217 @@
         return true;
     }
 
+    function LayoutSave(name) {
+        const guid = createGuid();
 
+        var MarkUp = "";
+
+        switch (name) {
+            case "Layout1":
+                MarkUp = `
+                     <div class="col-md-12 layout" id="${guid}" data-dropId="${guid}" data-LayoutType="1" ondrop="onLayoutDrop(event)" ondragover="allowDrop(event)" data-Layout="Layout1">
+
+                     </div>`;
+                break;
+            case "Layout2":
+                MarkUp = `
+                     <div class="col-md-12 layout" id="${guid}" data-Layout="Layout2">
+                        <div class="row">
+                            <div class="col-md-6 layout2 js_layout_col_1" id="${guid + "_1"}" data-dropId="${guid+"_1"}" data-LayoutType="2" ondrop="onLayoutDrop(event)" ondragover="allowDrop(event)" >
+
+                            </div>
+                            <div class="col-md-6 layout2 js_layout_col_2" id="${guid + "_2"}" data-dropId="${guid + "_2"}" data-LayoutType="2" ondrop="onLayoutDrop(event)" ondragover="allowDrop(event)">
+
+                            </div>
+                        </div>
+                     </div>`;
+                break;
+            case "Layout3":
+                MarkUp = `
+                     <div class="col-md-12 layout" id="${guid}" data-Layout="Layout3">
+                        <div class="row">
+                            <div class="col-md-4 layout3 js_layout_col_1" id="${guid + "_1"}" data-dropId="${guid + "_1"}" data-LayoutType="3" ondrop="onLayoutDrop(event)" ondragover="allowDrop(event)">
+
+                            </div>
+                            <div class="col-md-4 layout3 js_layout_col_2" id="${guid + "_2"}" data-dropId="${guid + "_2"}" data-LayoutType="3" ondrop="onLayoutDrop(event)" ondragover="allowDrop(event)">
+
+                            </div>
+                            <div class="col-md-4 layout3 js_layout_col_3" id="${guid + "_3"}" data-dropId="${guid + "_3"}" data-LayoutType="3" ondrop="onLayoutDrop(event)" ondragover="allowDrop(event)">
+
+                            </div>
+                        </div>
+                     </div>`;
+                break;
+            default:
+        }
+
+        const data = {
+            guid: guid,
+            Type: "Layout1",
+            DisplayOrder: DisplayOrder + 1
+        };
+
+        MyData.push(data);
+        SetFormData();
+
+        $("#drawflow").append(MarkUp);
+        return true;
+    }
+
+    // Region end Different Template Add to View Port
+
+
+    //For Saving Layout Detail to local storage
     function SetFormData() {
         window.localStorage.setItem("FromData", JSON.stringify(MyData));
     }
 
+    //For Getting Layout Detail from local storage
     function GetFormData() {
         MyData = JSON.parse(window.localStorage.getItem("FromData"));
     }
 
-    $("#SaveFormData").on("click",
-        function (e) {
+    // To show side input fields
+    function ShowInputFieldsShow(name,IsShow = false) {
+        if (!IsShow) {
+            $("#SideInput").hide();
+            return false;
+        }
+        $("#SideInput").show();
+        hideIndividualFields();
 
-            GetFormData();
+        switch (name) {
+            case "InputText":
+                $(".JS_InputLabel").show();
+                break;
+            case "InputRadio":
+                $(".JS_InputLabel").show();
+                $(".JS_InputValue").show();
+                $(".JS_RadioName").show();
+                break;
+        }
 
-            if (MyData == undefined || MyData == null) {
-                alert("Please Add a Form Elemet to the canvas.");
-                return false;
-            }
+        return true;
+    }
 
-            $("#FromDetails").modal('show');
+    // Hide All Side Input Detail Fields 
+    function hideIndividualFields() {
+        $(".JS_InputLabel").hide();
+        $(".JS_InputValue").hide();
+        $(".JS_RadioName").hide();
+        $(".JS_Height").hide();
+        $(".JS_Width").hide();
+        $(".JS_PositionX").hide();
+        $(".JS_PositionY").hide();
+    }
 
-            e.preventDefault();
-        });
+    // When and elm is selected this function is called 
+    $(document).on("click", ".JS_FormWidget", function () {
+        const elm = $(this);
+        SelectedInput = elm;
+        const widgetId = elm.attr("data-widgetId");
 
+        GetFormData();
+
+        let Input = JSON.parse(JSON.stringify(MyData.filter(x => x.guid == widgetId)));
+        if (Input.length > 0) {
+            Input = Input[0];
+        }
+        else {
+            return false;
+        }
+
+        if (Input.Type == "InputText") {
+            $("#CurrentSelect").val("InputText");
+            $("#InputLabel").val(Input.InputLabel);
+            ShowInputFieldsShow(Input.Type, true);
+        }
+        else if (Input.Type == "InputRadio") {
+            $("#CurrentSelect").val("InputRadio");
+            $("#InputLabel").val(Input.InputLabel);
+            $("#RadioName").val(Input.InputName);
+            $("#InputValue").val(Input.value);
+
+            ShowInputFieldsShow(Input.Type, true);
+        }
+
+    });
+
+    // For updating the added widget 
+    $("#UpdateWidget").on("click", function () {
+
+        const data = $("#CurrentSelect").val();
+        var check = true;
+        var elm_Id;
+        var InputLabel;
+        switch (data) {
+            case "InputText":
+                InputLabel = $("#InputLabel").val();
+
+                if (InputLabel == undefined || InputLabel == null || InputLabel == "") {
+                    alert("Plase Enter Input Label");
+                    return false;
+                }
+
+                elm_Id = SelectedInput.attr("data-widgetId");
+
+                check = TextSave(InputLabel, elm_Id);
+                break;
+            case "InputRadio":
+                var  InputVal = $("#InputValue").val();
+                InputLabel = $("#InputLabel").val();
+                var  InputName = $("#RadioName").val();
+
+                if (InputVal == undefined || InputVal == null || InputVal == "") {
+                    alert("Plase Enter Input Value");
+                    return false;
+                }
+
+                if (InputLabel == undefined || InputLabel == null || InputLabel == "") {
+                    alert("Plase Enter Input Label");
+                    return false;
+                }
+
+                if (InputName == undefined || InputName == null || InputName == "") {
+                    alert("Plase Enter Radio Group Name");
+                    return false;
+                }
+                elm_Id = SelectedInput.attr("data-widgetId");
+                check = RadioSave(InputLabel, InputVal, InputName, elm_Id);
+                break;
+            case "Clock":
+                check = ClockSave();
+                break;
+            case "Layout1":
+                check = LayoutSave("Layout1");
+                break;
+            case "Layout12":
+                check = LayoutSave("Layout2");
+                break;
+        }
+
+        if (!check) return false;
+
+        $("#SideInput").hide();
+        return false;
+    });
+
+    // To open From Detail Model
+    $("#SaveFormData").on("click", function (e) {
+
+        GetFormData();
+
+        if (MyData == undefined || MyData == null) {
+            alert("Please Add a Form Elemet to the canvas.");
+            return false;
+        }
+
+        $("#FromDetails").modal('show');
+
+        e.preventDefault();
+    });
+
+    // On Save Form Data Click Data Send to Backend
     $("#FormDetailSave").on('click', function () {
 
         const Name = $("#FormName").val();
@@ -344,35 +686,8 @@
         });
     });
 
-    $("#AddElm").on("click", function () {
-
-        const data = $("#CurrentSelect").val();
-        var check = true;
-        switch (data) {
-            case "InputText":
-                check = TextSave();
-                break;
-            case "InputRadio":
-                check = RadioSave();
-                break;
-            case "Clock":
-                check = ClockSave();
-                break;
-        }
-
-        if (!check) return false;
-
-        $("#SideInput").hide();
-        return false;
-    });
-
-    //var ctx = canvas.getContext("2d");
-    //var radius = canvas.height / 2;
-    //ctx.translate(radius, radius);
-    //radius = radius * 0.90
-    //setInterval(drawClock, 1000);
-
-    function drawClock(ctx,radius) {
+    // For Clock Widget Add
+    function drawClock(ctx, radius) {
         drawFace(ctx, radius);
         drawNumbers(ctx, radius);
         drawTime(ctx, radius);
@@ -444,6 +759,6 @@
         ctx.stroke();
         ctx.rotate(-pos);
     }
-
+    // For Clock Widget Add end 
 
 </script>
