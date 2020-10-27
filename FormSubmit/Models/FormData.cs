@@ -11,6 +11,8 @@ namespace FormSubmit.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
 
+        public string guid {get;set;}
+
         public string InputId { get; set; }
 
         public string value { get; set; }
@@ -34,6 +36,10 @@ namespace FormSubmit.Models
         public string PositionX { get; set; }
 
         public string PositionY { get; set; }
+        public string LayoutId { get; set; }
+        public string LayoutType { get; set; }
+        public string LayoutColumn { get; set; }
+
 
     }
 
@@ -46,6 +52,8 @@ namespace FormSubmit.Models
         public string Name { get; set; }
 
         public string Description { get; set; }
+
+        [NotMapped]
         public List<FormData> FormData { get; set; }
     }
 

@@ -167,11 +167,9 @@
     var LayoutDrop = {
         Id : "",
         isLayoutDrop: false,
-        LayoutType: 0
+        LayoutType: 0,
+        ColumnNo: 0
     }; 
-
-
-
 
     // For allowing drop
     function allowDrop(ev) {
@@ -197,15 +195,17 @@
         ev.preventDefault();
         ev.stopPropagation();
 
-        var elm = $(ev.target);
-        var id = elm.attr("data-dropId");
-        var layoutType = elm.attr("data-LayoutType");
+        const elm = $(ev.target);
+        const id = elm.attr("data-dropId");
+        const layoutType = elm.attr("data-LayoutType");
+        const columnNo = elm.attr("data-columnNo");
 
         const data = ev.dataTransfer.getData("node");
 
         LayoutDrop.isLayoutDrop = true;
         LayoutDrop.Id = id;
         LayoutDrop.LayoutType = layoutType;
+        LayoutDrop.ColumnNo = columnNo;
 
         dropElement(data);
         return false;
@@ -246,7 +246,6 @@
         return false;
     }
 
-
     //For Creating a random guid id
     function createGuid() {
         function S4() {
@@ -270,33 +269,47 @@
                      </div>`;
 
         if (elmId == null) {
+
+            DisplayOrder++;
+
             const data = {
                 guid: guid,
                 Type: "InputText",
-                DisplayOrder: DisplayOrder + 1,
+                DisplayOrder: DisplayOrder,
+                LayoutId: "",
+                LayoutType: "0",
+                LayoutColumn: "0",
                 InputLabel: InputLabel
             };
 
-            MyData.push(data);
-            SetFormData();
-
             if (LayoutDrop.isLayoutDrop) {
                 $(`#${LayoutDrop.Id}`).append(MarkUp);
+                data.LayoutId = LayoutDrop.Id;
+                data.LayoutType = LayoutDrop.LayoutType;
+                data.LayoutColumn = LayoutDrop.ColumnNo;
             }
             else {
                 $("#drawflow").append(MarkUp);
             }
+
+            MyData.push(data);
+            SetFormData();
+
         }
         else {
+            GetFormData();
+
+            var currentItem = MyData.filter(x => x.guid == elmId);
 
             const data = {
                 guid: elmId,
                 Type: "InputText",
-                DisplayOrder: DisplayOrder + 1,
-                InputLabel: InputLabel
+                DisplayOrder: currentItem[0].DisplayOrder,
+                InputLabel: InputLabel,
+                LayoutId: currentItem[0].LayoutId,
+                LayoutType: currentItem[0].LayoutType,
+                LayoutColumn :currentItem[0].ColumnNo
             };
-
-            GetFormData();
 
             MyData = MyData.filter(x => x.guid != elmId);
 
@@ -320,43 +333,56 @@
                         ${label}
                       </label>
                     </div>`;
+        
 
         if (elmId == null) {
+            DisplayOrder++;
             const data = {
                 guid: guid,
                 value: value,
                 Type: "InputRadio",
-                DisplayOrder: DisplayOrder + 1,
+                DisplayOrder: DisplayOrder,
                 InputLabel: label,
-                InputName: group
+                InputName: group,
+                LayoutId: "",
+                LayoutType: "0",
+                LayoutColumn:"0"
             };
-
-            MyData.push(data);
-
-            SetFormData();
 
             if (LayoutDrop.isLayoutDrop) {
                 $(`#${LayoutDrop.Id}`).append(MarkUp);
+                data.LayoutId = LayoutDrop.Id;
+                data.LayoutType = LayoutDrop.LayoutType;
+                data.LayoutColumn = LayoutDrop.ColumnNo;
             }
             else {
                 $("#drawflow").append(MarkUp);
             }
+
+            MyData.push(data);
+
+            SetFormData();
         }
         else {
-            
+
+            GetFormData();
+
+            var currentItem = MyData.filter(x => x.guid == elmId);
+
             const data = {
                 guid: elmId,
                 value: value,
                 Type: "InputRadio",
-                DisplayOrder: DisplayOrder + 1,
+                DisplayOrder: currentItem[0].DisplayOrder,
                 InputLabel: label,
-                InputName: group
+                InputName: group,
+                LayoutId: currentItem[0].LayoutId,
+                LayoutType: currentItem[0].LayoutType,
+                LayoutColumn: currentItem[0].ColumnNo
             };
 
-            GetFormData();
-
             MyData = MyData.filter(x => x.guid != elmId);
-
+            
             MyData.push(data);
             SetFormData();
 
@@ -435,50 +461,60 @@
         const guid = createGuid();
 
         var MarkUp = "";
-
+        var LayoutType = "";
+        var Type = "";
         switch (name) {
             case "Layout1":
                 MarkUp = `
-                     <div class="col-md-12 layout" id="${guid}" data-dropId="${guid}" data-LayoutType="1" ondrop="onLayoutDrop(event)" ondragover="allowDrop(event)" data-Layout="Layout1">
+                     <div class="col-md-12 layout" id="${guid}" data-dropId="${guid}" data-LayoutType="1" data-columnNo="0" ondrop="onLayoutDrop(event)" ondragover="allowDrop(event)" data-Layout="Layout1">
 
                      </div>`;
+
+                LayoutType = "1";
+                Type = "Layout1";
                 break;
             case "Layout2":
                 MarkUp = `
                      <div class="col-md-12 layout" id="${guid}" data-Layout="Layout2">
                         <div class="row">
-                            <div class="col-md-6 layout2 js_layout_col_1" id="${guid + "_1"}" data-dropId="${guid+"_1"}" data-LayoutType="2" ondrop="onLayoutDrop(event)" ondragover="allowDrop(event)" >
+                            <div class="col-md-6 layout2 js_layout_col_1" id="${guid + "_1"}" data-dropId="${guid + "_1"}" data-columnNo="1" data-LayoutType="2" ondrop="onLayoutDrop(event)" ondragover="allowDrop(event)" >
 
                             </div>
-                            <div class="col-md-6 layout2 js_layout_col_2" id="${guid + "_2"}" data-dropId="${guid + "_2"}" data-LayoutType="2" ondrop="onLayoutDrop(event)" ondragover="allowDrop(event)">
+                            <div class="col-md-6 layout2 js_layout_col_2" id="${guid + "_2"}" data-dropId="${guid + "_2"}" data-columnNo="2" data-LayoutType="2" ondrop="onLayoutDrop(event)" ondragover="allowDrop(event)">
 
                             </div>
                         </div>
                      </div>`;
+                LayoutType = "2";
+                Type = "Layout2";
                 break;
             case "Layout3":
                 MarkUp = `
                      <div class="col-md-12 layout" id="${guid}" data-Layout="Layout3">
                         <div class="row">
-                            <div class="col-md-4 layout3 js_layout_col_1" id="${guid + "_1"}" data-dropId="${guid + "_1"}" data-LayoutType="3" ondrop="onLayoutDrop(event)" ondragover="allowDrop(event)">
-
-                            </div>
-                            <div class="col-md-4 layout3 js_layout_col_2" id="${guid + "_2"}" data-dropId="${guid + "_2"}" data-LayoutType="3" ondrop="onLayoutDrop(event)" ondragover="allowDrop(event)">
-
-                            </div>
-                            <div class="col-md-4 layout3 js_layout_col_3" id="${guid + "_3"}" data-dropId="${guid + "_3"}" data-LayoutType="3" ondrop="onLayoutDrop(event)" ondragover="allowDrop(event)">
+                            <div class="col-md-4 layout3 js_layout_col_1" id="${guid + "_1"}" data-dropId="${guid + "_1"}" data-columnNo="1" data-LayoutType="3" ondrop="onLayoutDrop(event)" ondragover="allowDrop(event)">
+                                                                                                                           
+                            </div>                                                                                         
+                            <div class="col-md-4 layout3 js_layout_col_2" id="${guid + "_2"}" data-dropId="${guid + "_2"}" data-columnNo="2" data-LayoutType="3" ondrop="onLayoutDrop(event)" ondragover="allowDrop(event)">
+                                                                                                                           
+                            </div>                                                                                         
+                            <div class="col-md-4 layout3 js_layout_col_3" id="${guid + "_3"}" data-dropId="${guid + "_3"}" data-columnNo="3" data-LayoutType="3" ondrop="onLayoutDrop(event)" ondragover="allowDrop(event)">
 
                             </div>
                         </div>
                      </div>`;
+                LayoutType = "3";
+                Type = "Layout3";
                 break;
             default:
         }
 
+        DisplayOrder++;
         const data = {
             guid: guid,
-            Type: "Layout1",
-            DisplayOrder: DisplayOrder + 1
+            Type: Type,
+            DisplayOrder: DisplayOrder,
+            LayoutType: LayoutType
         };
 
         MyData.push(data);
@@ -489,7 +525,6 @@
     }
 
     // Region end Different Template Add to View Port
-
 
     //For Saving Layout Detail to local storage
     function SetFormData() {
@@ -631,7 +666,7 @@
 
         GetFormData();
 
-        if (MyData == undefined || MyData == null) {
+        if (MyData == undefined || MyData == null || MyData.length == 0) {
             alert("Please Add a Form Elemet to the canvas.");
             return false;
         }
@@ -644,10 +679,16 @@
     // On Save Form Data Click Data Send to Backend
     $("#FormDetailSave").on('click', function () {
 
+        var elm = $(this);
+
+        elm.attr("disable", true);
+
         const Name = $("#FormName").val();
         const Desc = $("#FormDescrition").val();
 
         const url = location.origin + "/Home/SaveFormData";
+
+        GetFormData();
 
         const formDetail = {
             Name: Name,
@@ -662,7 +703,7 @@
             contentType: "application/json; charset=utf-8",
             dataType: "html",
             success: function (response) {
-
+                elm.attr("disable", false);
                 if (response !== "200") {
                     alert("Some Error occur.");
                     $("#FromDetails").modal('hide');
@@ -671,17 +712,18 @@
                     alert("Success");
                     $("#FromDetails").modal('hide');
 
+                    window.localStorage.clear();
 
-                    window.location.reload();
+                    window.location.href = window.location.origin+"/Home";
                 }
 
                 return false;
             },
             failure: function () {
-
+                elm.attr("disable", false);
             },
             error: function () {
-
+                elm.attr("disable", false);
             }
         });
     });
