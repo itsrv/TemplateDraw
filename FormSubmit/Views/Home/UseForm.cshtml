@@ -127,6 +127,11 @@
         var dataList = [];
 
         for (let i = 0; i < formInput.length; i++) {
+
+            if ($(formInput[i]).attr("type").toLowerCase() == "radio") {
+                if (!$(formInput[i]).is(":checked")) continue;
+            }
+
             const data = {
                 ElmId: $(formInput[i]).attr("id"),
                 value: $(formInput[i]).val()
