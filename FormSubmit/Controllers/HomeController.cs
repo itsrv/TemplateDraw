@@ -6,7 +6,6 @@ using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using FormSubmit.Models;
-using FormSubmit.Models.ViewModel;
 using FormSubmit.Persistence;
 
 namespace FormSubmit.Controllers
