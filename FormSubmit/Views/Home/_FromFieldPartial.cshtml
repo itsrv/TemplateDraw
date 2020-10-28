@@ -1,0 +1,25 @@
+﻿@model FormData
+
+
+@if (Model.Type == "InputText")
+{
+<div class="form-group" >
+    <label class="Js_Lbl" for="@Model.Id">@Model.InputLabel</label>
+    <input type="text" class="form-control " id="@Model.Id" placeholder="">
+</div>
+}
+else if (Model.Type == "InputRadio")
+{
+<br />
+<div class="row">
+    <div class="col-sm-2 col-form-label col-form-label-sm"></div>
+    <div class="col-sm-10">
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="@Model.InputName" id="@Model.Id" value="@Model.value" checked>
+            <label class="form-check-label" for="@Model.Id">
+                @Model.InputLabel
+            </label>
+        </div>
+    </div>
+</div>
+}

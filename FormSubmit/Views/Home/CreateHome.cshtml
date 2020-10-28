@@ -286,7 +286,7 @@
                 $(`#${LayoutDrop.Id}`).append(MarkUp);
                 data.LayoutId = LayoutDrop.Id;
                 data.LayoutType = LayoutDrop.LayoutType;
-                data.LayoutColumn = LayoutDrop.ColumnNo;
+                data.LayoutColumn = LayoutDrop.ColumnNo.toString();
             }
             else {
                 $("#drawflow").append(MarkUp);
@@ -299,7 +299,7 @@
         else {
             GetFormData();
 
-            var currentItem = MyData.filter(x => x.guid == elmId);
+            var currentItem = JSON.parse(JSON.stringify(MyData.filter(x => x.guid == elmId)));
 
             const data = {
                 guid: elmId,
@@ -308,7 +308,7 @@
                 InputLabel: InputLabel,
                 LayoutId: currentItem[0].LayoutId,
                 LayoutType: currentItem[0].LayoutType,
-                LayoutColumn :currentItem[0].ColumnNo
+                LayoutColumn: currentItem[0].LayoutColumn.toString()
             };
 
             MyData = MyData.filter(x => x.guid != elmId);
@@ -353,7 +353,7 @@
                 $(`#${LayoutDrop.Id}`).append(MarkUp);
                 data.LayoutId = LayoutDrop.Id;
                 data.LayoutType = LayoutDrop.LayoutType;
-                data.LayoutColumn = LayoutDrop.ColumnNo;
+                data.LayoutColumn = LayoutDrop.ColumnNo.toString();
             }
             else {
                 $("#drawflow").append(MarkUp);
@@ -367,7 +367,7 @@
 
             GetFormData();
 
-            var currentItem = MyData.filter(x => x.guid == elmId);
+            var currentItem =JSON.parse(JSON.stringify(MyData.filter(x => x.guid == elmId)));
 
             const data = {
                 guid: elmId,
@@ -378,7 +378,7 @@
                 InputName: group,
                 LayoutId: currentItem[0].LayoutId,
                 LayoutType: currentItem[0].LayoutType,
-                LayoutColumn: currentItem[0].ColumnNo
+                LayoutColumn: currentItem[0].LayoutColumn.toString()
             };
 
             MyData = MyData.filter(x => x.guid != elmId);

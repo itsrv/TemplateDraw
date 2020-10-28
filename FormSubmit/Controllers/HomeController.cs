@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using FormSubmit.Models;
+using FormSubmit.Models.ViewModel;
 using FormSubmit.Persistence;
 
 namespace FormSubmit.Controllers
@@ -38,15 +40,17 @@ namespace FormSubmit.Controllers
                 _db.FormDetail.Add(data);
                 _db.SaveChanges();
 
-                data.FormData.ForEach(x =>
+                for(var i= 0;i< data.FormData.Count;i++)
                 {
-                    x.FormId = data.id;
-                    x.Id = long.Parse("0");
-                });
+                    data.FormData[i].FormId = data.id;
+                    data.FormData[i].Id = long.Parse("0");
 
-                _db.AddRange(data.FormData);
-                _db.SaveChanges();
+                    _db.Add(data.FormData[i]);
+                    _db.SaveChanges();
 
+
+                }
+                
                 return HttpStatusCode.OK;
             }
             catch (Exception EX)
